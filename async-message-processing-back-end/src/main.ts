@@ -1,8 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { INestApplication } from '@nestjs/common';
+import { BadRequestException, ExceptionFilter, INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { useContainer } from 'class-validator';
+import { useContainer, ValidationError } from 'class-validator';
+import { AllExceptionsFilter } from './core/config/exceptions/all-exceptions.filter';
+
 const extractErrorMessages = (errors: ValidationError[]): string[] => {
   const messages: string[] = [];
 
@@ -40,8 +42,14 @@ const configAppPipes = (): ValidationPipe[] => {
     }),
   ];
 };
+
+const configAppFilters = (app: INestApplication): ExceptionFilter[] => {
+  return [new AllExceptionsFilter(app.get(HttpAdapterHost))];
+};
+
 const configApp = (app: INestApplication): void => {
   app.useGlobalPipes(...configAppPipes());
+  app.useGlobalFilters(...configAppFilters(app));
   configAppDocument(app);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 };
