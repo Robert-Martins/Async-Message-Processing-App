@@ -1,0 +1,7 @@
+export enum StatusNotificacao {
+
+    AGUARDANDO_PROCESSAMENTO,
+    PROCESSADO_SUCESSO,
+    FALHA_PROCESSAMENTO
+
+}
