@@ -9,7 +9,7 @@ export class NotificacaoDto {
     @IsUUID(4, { message: provideIsUUIDValidationMessage('ID da mensagem')})
     @ApiProperty({
         description: 'ID único da mensagem',
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        example: '2f8fb7f9-95ed-44da-89e0-db08881719a3',
         type: String,
         format: 'uuid'
     })
