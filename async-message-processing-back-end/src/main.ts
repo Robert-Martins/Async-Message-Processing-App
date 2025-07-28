@@ -3,6 +3,20 @@ import { AppModule } from './app.module';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+const extractErrorMessages = (errors: ValidationError[]): string[] => {
+  const messages: string[] = [];
+
+  errors.forEach((error) => {
+    if (error.constraints) {
+      messages.push(...Object.values(error.constraints));
+    }
+    if (error.children && error.children.length > 0) {
+      messages.push(...extractErrorMessages(error.children));
+    }
+  });
+
+  return messages;
+};
 
 const configAppDocument = (app: INestApplication): void => {
   const options = new DocumentBuilder()
@@ -15,7 +29,19 @@ const configAppDocument = (app: INestApplication): void => {
   SwaggerModule.setup('docs', app, document);
 };
 
+const configAppPipes = (): ValidationPipe[] => {
+  return [
+    new ValidationPipe({
+      transform: true,
+      exceptionFactory: async (errors: ValidationError[]) => {
+        const errorMessages = extractErrorMessages(errors);
+        return new BadRequestException(errorMessages.toString());
+      },
+    }),
+  ];
+};
 const configApp = (app: INestApplication): void => {
+  app.useGlobalPipes(...configAppPipes());
   configAppDocument(app);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 };
