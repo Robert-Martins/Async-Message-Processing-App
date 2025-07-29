@@ -2,9 +2,12 @@ import { Module } from "@nestjs/common";
 import { NotificacaoController } from "./notificacao.controller";
 import { INotificacaoRepositoryToken, NotificacaoRepository } from "./notificacao.repository";
 import { NotificacaoService } from "./notificacao.service";
+import { EntryQueueModule } from "./queues/entry/entry-queue.module";
 
 @Module({
-  imports: [],
+  imports: [
+    EntryQueueModule
+  ],
   controllers: [NotificacaoController],
   providers: [
     NotificacaoService,
