@@ -14,26 +14,26 @@ export const INotificacaoRepositoryToken = Symbol('INotificacaoRepository');
 @Injectable()
 export class NotificacaoRepository {
 
-    private readonly notificacoes: NotificacaoDto[] = [];
+    private readonly notificacoes: Map<string, NotificacaoDto> = new Map();
 
     public async findAll(): Promise<NotificacaoDto[]> {
-        return this.notificacoes;
+        return Array.from(this.notificacoes.values());
     }
 
     public async save(notificacao: NotificacaoDto): Promise<NotificacaoDto> {
-        this.notificacoes.push(notificacao);
+        this.notificacoes.set(notificacao.mensagemId, notificacao);
         return notificacao;
     }
 
     public async updateStatus(id: string, status: StatusNotificacao): Promise<void> {
-        const notificacao = this.notificacoes.find(n => n.mensagemId === id);
+        const notificacao = this.notificacoes.get(id);
         if (notificacao) {
             notificacao.status = status;
         }
     }
 
     public async findById(id: string): Promise<NotificacaoDto | undefined> {
-        return this.notificacoes.find(n => n.mensagemId === id);
+        return this.notificacoes.get(id);
     }
 
 }
