@@ -1,0 +1,10 @@
+<app-list>
+    <app-list-header>ID</app-list-header>
+    <app-list-header>Mensagem</app-list-header>
+    <app-list-header>Status</app-list-header>
+    <ng-container *ngFor="let notificacao of getCurrentNotificacoes$() | async">
+        <app-list-item>{{ notificacao.mensagemId }}</app-list-item>
+        <app-list-item>{{ notificacao.conteudoMensagem }}</app-list-item>
+        <app-list-item>{{ notificacao.status }}</app-list-item>
+    </ng-container>
+</app-list>
