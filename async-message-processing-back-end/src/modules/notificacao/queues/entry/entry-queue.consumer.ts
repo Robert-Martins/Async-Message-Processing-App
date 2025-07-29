@@ -1,17 +1,19 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Controller, Inject, Logger, OnModuleInit } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { INotificacaoRepository, INotificacaoRepositoryToken } from '../../notificacao.repository';
 import { StatusNotificacao } from 'src/core/vo/enums/status-notificacao.enum';
 import { EntryQueueMessage } from './entry-queue.publisher';
+import { StatusQueuePublisher } from '../status/status-queue.publisher';
 
-@Injectable()
+@Controller()
 export class EntryQueueConsumer implements OnModuleInit {
 
     private readonly logger = new Logger(EntryQueueConsumer.name);
 
     constructor(
         @Inject(INotificacaoRepositoryToken) 
-        private readonly notificacaoRepository: INotificacaoRepository
+        private readonly notificacaoRepository: INotificacaoRepository,
+        private readonly statusQueuePublisher: StatusQueuePublisher
     ) { }
 
     public onModuleInit() {
@@ -28,17 +30,15 @@ export class EntryQueueConsumer implements OnModuleInit {
             const isSuccess = this.wasSuccessful();
             
             this.logger.log(`${isSuccess ? "Processamento bem-sucedido" : "Falha no processamento"} - ID: ${message.mensagemId}`);
-            await this.updateNotificationStatus(message.mensagemId, isSuccess);
+            await this.defineAndUpdateNotificationStatus(message.mensagemId, isSuccess);
 
         } catch (error) {
             this.logger.error(`Erro durante o processamento da mensagem ${message.mensagemId}: ${error.message}`, error.stack);
-            await this.updateNotificationStatus(
-                message.mensagemId
-            );
+            await this.defineAndUpdateNotificationStatus(message.mensagemId);
         }
     }
 
-    private async updateNotificationStatus(
+    private async defineAndUpdateNotificationStatus(
         mensagemId: string,
         wasSuccessful: boolean = false
     ): Promise<void> {
@@ -47,6 +47,9 @@ export class EntryQueueConsumer implements OnModuleInit {
             : StatusNotificacao.FALHA_PROCESSAMENTO;
 
         await this.notificacaoRepository.updateStatus(mensagemId, status);
+
+        await this.statusQueuePublisher.publishStatusUpdate(mensagemId, status);
+
         this.logger.log(`Status da notificação ${mensagemId} atualizado para ${status}`);
     }
 

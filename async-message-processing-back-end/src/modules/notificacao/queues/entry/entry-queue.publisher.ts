@@ -13,7 +13,7 @@ export class EntryQueuePublisher {
     private readonly logger = new Logger(EntryQueuePublisher.name);
 
     constructor(
-        @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy
+        @Inject('ENTRY_QUEUE_SERVICE') private readonly client: ClientProxy
     ) { }
 
     public async publishMessage(mensagemId: string, conteudoMensagem: string): Promise<void> {
