@@ -4,9 +4,10 @@ import { BadRequestException, ExceptionFilter, INestApplication, ValidationPipe 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer, ValidationError } from 'class-validator';
 import { AllExceptionsFilter } from './core/config/exceptions/all-exceptions.filter';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { provideQueueConfiguration, provideQueueMicroserviceConfiguration } from './core/config/queues/queue.config';
+import { provideQueueMicroserviceConfiguration } from './core/config/queues/queue.config';
+import { corsOptions } from './core/config/security/security.providers';
 
 const extractErrorMessages = (errors: ValidationError[]): string[] => {
   const messages: string[] = [];
@@ -73,7 +74,7 @@ const startAllMicroservices = async (app: INestApplication): Promise<void> => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: corsOptions });
   configApp(app);
   await app.listen(process.env.PORT ?? 3000);
 }
