@@ -4,6 +4,9 @@ import { BadRequestException, ExceptionFilter, INestApplication, ValidationPipe 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer, ValidationError } from 'class-validator';
 import { AllExceptionsFilter } from './core/config/exceptions/all-exceptions.filter';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { provideQueueConfiguration, provideQueueMicroserviceConfiguration } from './core/config/queues/queue.config';
 
 const extractErrorMessages = (errors: ValidationError[]): string[] => {
   const messages: string[] = [];
@@ -51,7 +54,22 @@ const configApp = (app: INestApplication): void => {
   app.useGlobalPipes(...configAppPipes());
   app.useGlobalFilters(...configAppFilters(app));
   configAppDocument(app);
+  startAllMicroservices(app);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+};
+
+const startAllMicroservices = async (app: INestApplication): Promise<void> => {
+  const configService = app.get(ConfigService);
+
+  app.connectMicroservice<MicroserviceOptions>(
+    await provideQueueMicroserviceConfiguration('entrada', configService)
+  );
+
+  app.connectMicroservice<MicroserviceOptions>(
+    await provideQueueMicroserviceConfiguration('status', configService)
+  );
+
+  await app.startAllMicroservices();
 };
 
 async function bootstrap() {
