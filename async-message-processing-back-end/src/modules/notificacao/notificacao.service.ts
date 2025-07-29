@@ -16,13 +16,15 @@ export class NotificacaoService {
 
     public async save(notificacao: NotificacaoDto): Promise<NotificacaoDto> {
         notificacao.status = StatusNotificacao.AGUARDANDO_PROCESSAMENTO;
+        
+        this.notificacaoRepository.save(notificacao)
 
         await this.entryQueuePublisher.publishMessage(
             notificacao.mensagemId, 
             notificacao.conteudoMensagem
         );
-        
-        return this.notificacaoRepository.save(notificacao);
+
+        return notificacao;
     }
 
     public async findAll(): Promise<NotificacaoDto[]> {

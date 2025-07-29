@@ -1,0 +1,9 @@
+<form [formGroup]="notificacaoForm" (ngSubmit)="onSubmit()">
+    <app-text-area
+        formControlName="conteudoMensagem"
+        label="Mensagem"
+        placeholder="Digite o conteúdo da mensagem"
+    />
+
+    <button type="button">Enviar</button>
+</form>
