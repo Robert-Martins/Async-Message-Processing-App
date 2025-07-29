@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NotificacaoFormComponent } from './shared/components/organisms/notificacao/notificacao-form/notificacao-form.component';
+import { NotificacaoListComponent } from './shared/components/organisms/notificacao/notificacao-list/notificacao-list.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [NotificacaoFormComponent, NotificacaoListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'async-message-processing-front-end';
+  title = 'Async Message Processing Front End';
 }

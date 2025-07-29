@@ -5,7 +5,7 @@ export class Notificacao {
     constructor(
         public mensagemId: string,
         public conteudoMensagem: string,
-        public status: keyof(StatusNotificacao)
+        public status: keyof typeof StatusNotificacao
     ) { }
 
 }
